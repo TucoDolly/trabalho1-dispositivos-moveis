@@ -35,10 +35,9 @@ class _TelaInicialState extends State<TelaInicial> {
             itemBuilder: (ctx, i) {
               final tarefa = tarefasProvider.tarefas[i];
               
-              // O Dismissible é o componente que permite arrastar para os lados
               return Dismissible(
                 key: ValueKey(tarefa.id),
-                direction: DismissDirection.endToStart, // Arrastar da direita para a esquerda
+                direction: DismissDirection.endToStart,
                 background: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
@@ -47,10 +46,7 @@ class _TelaInicialState extends State<TelaInicial> {
                   child: const Icon(Icons.delete, color: Colors.white, size: 30),
                 ),
                 onDismissed: (direction) {
-                  // Quando terminar de arrastar, chama a função de deletar no banco
                   Provider.of<TarefasProvider>(context, listen: false).removerTarefa(tarefa.id!);
-                  
-                  // Mostra um aviso rápido na parte de baixo da tela
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Tarefa "${tarefa.titulo}" excluída!')),
                   );
@@ -58,6 +54,13 @@ class _TelaInicialState extends State<TelaInicial> {
                 child: Card(
                   margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   child: ListTile(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => TelaCadastro(tarefaParaEdicao: tarefa),
+                        ),
+                      );
+                    },
                     leading: Icon(
                       tarefa.importante ? Icons.star : Icons.star_border,
                       color: tarefa.importante ? Colors.amber : Colors.grey,
@@ -102,4 +105,5 @@ class _TelaInicialState extends State<TelaInicial> {
       ),
     );
   }
+  
 }

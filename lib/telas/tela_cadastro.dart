@@ -4,7 +4,9 @@ import '../models/tarefa.dart';
 import '../providers/tarefas_provider.dart';
 
 class TelaCadastro extends StatefulWidget {
-  const TelaCadastro({super.key});
+  final Tarefa? tarefaParaEdicao;
+
+  const TelaCadastro({super.key, this.tarefaParaEdicao});
 
   @override
   State<TelaCadastro> createState() => _TelaCadastroState();
@@ -18,11 +20,23 @@ class _TelaCadastroState extends State<TelaCadastro> {
   DateTime _dataPrevista = DateTime.now();
   bool _importante = false;
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.tarefaParaEdicao != null) {
+      _titulo = widget.tarefaParaEdicao!.titulo;
+      _descricao = widget.tarefaParaEdicao!.descricao;
+      _categoria = widget.tarefaParaEdicao!.categoria;
+      _dataPrevista = widget.tarefaParaEdicao!.dataPrevista;
+      _importante = widget.tarefaParaEdicao!.importante;
+    }
+  }
+
   void _mostrarInterpretadorDeData() {
     showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: _dataPrevista,
+      firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     ).then((dataEscolhida) {
       if (dataEscolhida == null) return;
@@ -36,7 +50,8 @@ class _TelaCadastroState extends State<TelaCadastro> {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
-    final novaTarefa = Tarefa(
+    final tarefaSalva = Tarefa(
+      id: widget.tarefaParaEdicao?.id,
       titulo: _titulo,
       descricao: _descricao,
       dataPrevista: _dataPrevista,
@@ -44,14 +59,20 @@ class _TelaCadastroState extends State<TelaCadastro> {
       categoria: _categoria,
     );
 
-    Provider.of<TarefasProvider>(context, listen: false).adicionarTarefa(novaTarefa);
+    if (widget.tarefaParaEdicao == null) {
+      Provider.of<TarefasProvider>(context, listen: false).adicionarTarefa(tarefaSalva);
+    } else {
+      Provider.of<TarefasProvider>(context, listen: false).atualizarTarefa(tarefaSalva);
+    }
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nova Tarefa')),
+      appBar: AppBar(
+        title: Text(widget.tarefaParaEdicao == null ? 'Nova Tarefa' : 'Editar Tarefa'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -59,14 +80,16 @@ class _TelaCadastroState extends State<TelaCadastro> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _titulo,
                 decoration: const InputDecoration(labelText: 'Título'),
                 validator: (valor) => valor!.trim().isEmpty ? 'Informe o título' : null,
                 onSaved: (valor) => _titulo = valor!,
               ),
               TextFormField(
+                initialValue: _descricao,
                 decoration: const InputDecoration(labelText: 'Descrição'),
-                minLines: 1, // Começa com 1 linha (perto do traço)
-                maxLines: 5, // Cresce até 5 linhas se precisar
+                minLines: 1,
+                maxLines: 5,
                 keyboardType: TextInputType.multiline,
                 validator: (valor) => valor!.trim().isEmpty ? 'Informe a descrição' : null,
                 onSaved: (valor) => _descricao = valor!,
@@ -101,7 +124,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: _salvarTarefa,
-                child: const Text('Salvar Tarefa'),
+                child: Text(widget.tarefaParaEdicao == null ? 'Salvar Tarefa' : 'Atualizar Tarefa'),
               )
             ],
           ),
