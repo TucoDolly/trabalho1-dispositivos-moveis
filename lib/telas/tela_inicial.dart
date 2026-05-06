@@ -22,6 +22,10 @@ class _TelaInicialState extends State<TelaInicial> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Minhas Tarefas'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       body: Consumer<TarefasProvider>(
         builder: (ctx, tarefasProvider, child) {
@@ -35,6 +39,11 @@ class _TelaInicialState extends State<TelaInicial> {
             itemBuilder: (ctx, i) {
               final tarefa = tarefasProvider.tarefas[i];
               
+              final dataAtual = DateTime.now();
+              final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
+              final dataTarefa = DateTime(tarefa.dataPrevista.year, tarefa.dataPrevista.month, tarefa.dataPrevista.day);
+              final isAtrasada = dataTarefa.isBefore(hoje) && !tarefa.realizada;
+              
               return Dismissible(
                 key: ValueKey(tarefa.id),
                 direction: DismissDirection.endToStart,
@@ -47,45 +56,59 @@ class _TelaInicialState extends State<TelaInicial> {
                 ),
                 onDismissed: (direction) {
                   Provider.of<TarefasProvider>(context, listen: false).removerTarefa(tarefa.id!);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Tarefa "${tarefa.titulo}" excluída!')),
-                  );
                 },
                 child: Card(
                   margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   child: ListTile(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => TelaCadastro(tarefaParaEdicao: tarefa),
-                        ),
+                      Navigator.of(context).pushNamed(
+                        '/detalhes',
+                        arguments: tarefa,
                       );
                     },
                     leading: Icon(
-                      tarefa.importante ? Icons.star : Icons.star_border,
-                      color: tarefa.importante ? Colors.amber : Colors.grey,
+                      tarefa.realizada ? Icons.check_circle : (tarefa.importante ? Icons.star : Icons.star_border),
+                      color: tarefa.realizada ? Colors.green : (tarefa.importante ? Colors.amber : Colors.grey),
                       size: 30,
                     ),
                     title: Text(
                       tarefa.titulo,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        decoration: tarefa.realizada ? TextDecoration.lineThrough : null,
+                        color: isAtrasada ? Colors.red : null,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(tarefa.descricao),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Categoria: ${tarefa.categoria}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.blue.shade700,
-                            fontWeight: FontWeight.w600,
+                        Text('Categoria: ${tarefa.categoria}'),
+                        if (isAtrasada)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 4.0),
+                            child: Text(
+                              '⚠️ Tarefa Atrasada',
+                              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                            ),
                           ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('${tarefa.dataPrevista.day}/${tarefa.dataPrevista.month}/${tarefa.dataPrevista.year}'),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => TelaCadastro(tarefaParaEdicao: tarefa),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
-                    trailing: Text('${tarefa.dataPrevista.day}/${tarefa.dataPrevista.month}/${tarefa.dataPrevista.year}'),
                   ),
                 ),
               );
@@ -105,5 +128,4 @@ class _TelaInicialState extends State<TelaInicial> {
       ),
     );
   }
-  
 }

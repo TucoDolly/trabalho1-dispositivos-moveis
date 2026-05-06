@@ -1,20 +1,20 @@
 class Tarefa {
   int? id;
-  String titulo;
-  String descricao;
-  DateTime dataPrevista;
-  bool importante;
-  bool realizada;
-  String categoria;
+  final String titulo;
+  final String descricao;
+  final DateTime dataPrevista;
+  final bool importante;
+  final String categoria;
+  final bool realizada;
 
   Tarefa({
     this.id,
     required this.titulo,
     required this.descricao,
     required this.dataPrevista,
-    this.importante = false,
-    this.realizada = false,
+    required this.importante,
     required this.categoria,
+    this.realizada = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,8 +24,8 @@ class Tarefa {
       'descricao': descricao,
       'dataPrevista': dataPrevista.toIso8601String(),
       'importante': importante ? 1 : 0,
-      'realizada': realizada ? 1 : 0,
       'categoria': categoria,
+      'realizada': realizada ? 1 : 0,
     };
   }
 
@@ -36,8 +36,8 @@ class Tarefa {
       descricao: map['descricao'],
       dataPrevista: DateTime.parse(map['dataPrevista']),
       importante: map['importante'] == 1,
-      realizada: map['realizada'] == 1,
       categoria: map['categoria'],
+      realizada: map['realizada'] == 1,
     );
   }
 }

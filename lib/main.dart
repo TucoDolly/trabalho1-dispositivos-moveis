@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/tarefas_provider.dart';
 import 'telas/tela_inicial.dart';
+import 'telas/tela_boas_vindas.dart';
+import 'telas/tela_detalhes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,10 +19,15 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'App de Tarefas',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.deepPurple,
         ),
-        home: const TelaInicial(),
         debugShowCheckedModeBanner: false,
+        initialRoute: '/',
+        routes: {
+          '/': (context) => const TelaBoasVindas(),
+          '/home': (context) => const TelaInicial(),
+          '/detalhes': (context) => const TelaDetalhes(),
+        },
       ),
     );
   }

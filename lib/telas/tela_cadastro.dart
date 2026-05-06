@@ -33,10 +33,14 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   void _mostrarInterpretadorDeData() {
+    final dataAtual = DateTime.now();
+    final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
+    final dataInicial = DateTime(_dataPrevista.year, _dataPrevista.month, _dataPrevista.day);
+
     showDatePicker(
       context: context,
       initialDate: _dataPrevista,
-      firstDate: DateTime(2020),
+      firstDate: dataInicial.isBefore(hoje) ? _dataPrevista : hoje,
       lastDate: DateTime(2030),
     ).then((dataEscolhida) {
       if (dataEscolhida == null) return;
@@ -57,6 +61,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
       dataPrevista: _dataPrevista,
       importante: _importante,
       categoria: _categoria,
+      realizada: widget.tarefaParaEdicao?.realizada ?? false,
     );
 
     if (widget.tarefaParaEdicao == null) {
