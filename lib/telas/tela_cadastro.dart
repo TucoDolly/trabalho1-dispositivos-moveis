@@ -4,9 +4,7 @@ import '../models/tarefa.dart';
 import '../providers/tarefas_provider.dart';
 
 class TelaCadastro extends StatefulWidget {
-  final Tarefa? tarefaParaEdicao;
-
-  const TelaCadastro({super.key, this.tarefaParaEdicao});
+  const TelaCadastro({super.key});
 
   @override
   State<TelaCadastro> createState() => _TelaCadastroState();
@@ -19,20 +17,28 @@ class _TelaCadastroState extends State<TelaCadastro> {
   String _categoria = 'Estudos';
   DateTime _dataPrevista = DateTime.now();
   bool _importante = false;
+  bool _carregado = false;
+  Tarefa? _tarefaParaEdicao;
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.tarefaParaEdicao != null) {
-      _titulo = widget.tarefaParaEdicao!.titulo;
-      _descricao = widget.tarefaParaEdicao!.descricao;
-      _categoria = widget.tarefaParaEdicao!.categoria;
-      _dataPrevista = widget.tarefaParaEdicao!.dataPrevista;
-      _importante = widget.tarefaParaEdicao!.importante;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_carregado) {
+      final args = ModalRoute.of(context)!.settings.arguments;
+      if (args != null && args is Tarefa) {
+        _tarefaParaEdicao = args;
+        _titulo = _tarefaParaEdicao!.titulo;
+        _descricao = _tarefaParaEdicao!.descricao;
+        _categoria = _tarefaParaEdicao!.categoria;
+        _dataPrevista = _tarefaParaEdicao!.dataPrevista;
+        _importante = _tarefaParaEdicao!.importante;
+      }
+      _carregado = true;
     }
   }
 
   void _mostrarInterpretadorDeData() {
+    // Obtém a data atual para servir de base na validação
     final dataAtual = DateTime.now();
     final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
     final dataInicial = DateTime(_dataPrevista.year, _dataPrevista.month, _dataPrevista.day);
@@ -40,6 +46,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
     showDatePicker(
       context: context,
       initialDate: _dataPrevista,
+      // Bloqueia a escolha de datas passadas no calendário
       firstDate: dataInicial.isBefore(hoje) ? _dataPrevista : hoje,
       lastDate: DateTime(2030),
     ).then((dataEscolhida) {
@@ -55,16 +62,16 @@ class _TelaCadastroState extends State<TelaCadastro> {
     _formKey.currentState!.save();
 
     final tarefaSalva = Tarefa(
-      id: widget.tarefaParaEdicao?.id,
+      id: _tarefaParaEdicao?.id,
       titulo: _titulo,
       descricao: _descricao,
       dataPrevista: _dataPrevista,
       importante: _importante,
       categoria: _categoria,
-      realizada: widget.tarefaParaEdicao?.realizada ?? false,
+      realizada: _tarefaParaEdicao?.realizada ?? false,
     );
 
-    if (widget.tarefaParaEdicao == null) {
+    if (_tarefaParaEdicao == null) {
       Provider.of<TarefasProvider>(context, listen: false).adicionarTarefa(tarefaSalva);
     } else {
       Provider.of<TarefasProvider>(context, listen: false).atualizarTarefa(tarefaSalva);
@@ -76,7 +83,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.tarefaParaEdicao == null ? 'Nova Tarefa' : 'Editar Tarefa'),
+        title: Text(_tarefaParaEdicao == null ? 'Nova Tarefa' : 'Editar Tarefa'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -129,7 +136,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: _salvarTarefa,
-                child: Text(widget.tarefaParaEdicao == null ? 'Salvar Tarefa' : 'Atualizar Tarefa'),
+                child: Text(_tarefaParaEdicao == null ? 'Salvar Tarefa' : 'Atualizar Tarefa'),
               )
             ],
           ),

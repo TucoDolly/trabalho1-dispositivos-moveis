@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/tarefa.dart';
 import '../providers/tarefas_provider.dart';
-import '../telas/tela_cadastro.dart';
 
 class CardTarefa extends StatelessWidget {
   final Tarefa tarefa;
@@ -11,6 +10,7 @@ class CardTarefa extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Verifica se a tarefa é anterior a hoje para acionar alertas visuais vermelhos
     final dataAtual = DateTime.now();
     final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
     final dataTarefa = DateTime(tarefa.dataPrevista.year, tarefa.dataPrevista.month, tarefa.dataPrevista.day);
@@ -72,10 +72,9 @@ class CardTarefa extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.edit),
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => TelaCadastro(tarefaParaEdicao: tarefa),
-                    ),
+                  Navigator.of(context).pushNamed(
+                    '/cadastro',
+                    arguments: tarefa,
                   );
                 },
               ),

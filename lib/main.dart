@@ -4,6 +4,7 @@ import 'providers/tarefas_provider.dart';
 import 'telas/tela_inicial.dart';
 import 'telas/tela_boas_vindas.dart';
 import 'telas/tela_detalhes.dart';
+import 'telas/tela_cadastro.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
           '/': (context) => const TelaBoasVindas(),
           '/home': (context) => const TelaInicial(),
           '/detalhes': (context) => const TelaDetalhes(),
+          '/cadastro': (context) => const TelaCadastro(),
         },
       ),
     );

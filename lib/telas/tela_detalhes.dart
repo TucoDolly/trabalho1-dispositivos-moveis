@@ -22,7 +22,10 @@ class TelaDetalhes extends StatelessWidget {
             children: [
               Text(
                 'ID: ${tarefa.id}',
-                style: const TextStyle(color: Colors.grey, fontSize: 14),
+                style: const TextStyle(
+                  fontSize: 14, 
+                  fontWeight: FontWeight.w500,
+                ),
               ),
               const SizedBox(height: 10),
               Text(
@@ -79,6 +82,7 @@ class TelaDetalhes extends StatelessWidget {
                   label: Text(tarefa.realizada ? 'Tarefa Realizada' : 'Marcar como Realizada'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: tarefa.realizada ? Colors.grey : Colors.green,
+                    foregroundColor: Colors.white,
                   ),
                 ),
               ),

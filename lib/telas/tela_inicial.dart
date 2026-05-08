@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/tarefas_provider.dart';
 import '../models/tarefa.dart';
-import 'tela_cadastro.dart';
 import '../componentes/card_tarefa.dart';
 
 class TelaInicial extends StatefulWidget {
@@ -20,6 +19,7 @@ class _TelaInicialState extends State<TelaInicial> {
   }
 
   bool _isAtrasada(Tarefa tarefa) {
+    // Compara a data da tarefa com o dia de hoje para verificar se está atrasada
     final dataAtual = DateTime.now();
     final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
     final dataTarefa = DateTime(tarefa.dataPrevista.year, tarefa.dataPrevista.month, tarefa.dataPrevista.day);
@@ -29,7 +29,7 @@ class _TelaInicialState extends State<TelaInicial> {
   Widget _buildLista(List<Tarefa> tarefas) {
     if (tarefas.isEmpty) {
       return const Center(
-        child: Text('Nenhuma tarefa encontrada neste filtro.'),
+        child: Text('Nenhuma tarefa encontrada.'),
       );
     }
     return ListView.builder(
@@ -43,7 +43,7 @@ class _TelaInicialState extends State<TelaInicial> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Minhas Tarefas'),
@@ -52,43 +52,51 @@ class _TelaInicialState extends State<TelaInicial> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           bottom: const TabBar(
-            isScrollable: false,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             indicatorSize: TabBarIndicatorSize.tab,
-            labelPadding: EdgeInsets.zero,
-            labelStyle: TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold),
-            unselectedLabelStyle: TextStyle(fontSize: 12.5),
+            labelPadding: EdgeInsets.symmetric(horizontal: 20.0),
+            labelStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            unselectedLabelStyle: TextStyle(fontSize: 14),
             tabs: [
               Tab(icon: Icon(Icons.list), text: 'Todas'),
-              Tab(icon: Icon(Icons.star), text: 'Importantes'),
-              Tab(icon: Icon(Icons.warning), text: 'Atrasadas'),
-              Tab(icon: Icon(Icons.check_circle), text: 'Prontas'),
+              Tab(icon: Icon(Icons.check_circle), text: 'Feitas'),
+              Tab(icon: Icon(Icons.radio_button_unchecked), text: 'Fazer'),
+              Tab(icon: Icon(Icons.event_available), text: 'Em dia'),
+              Tab(icon: Icon(Icons.star), text: 'Importante'),
+              Tab(icon: Icon(Icons.star_border), text: 'Comuns'),
+              Tab(icon: Icon(Icons.warning_amber), text: 'Atrasos'),
             ],
           ),
         ),
         body: Consumer<TarefasProvider>(
           builder: (ctx, tarefasProvider, child) {
-            final todas = tarefasProvider.tarefas.toList();
-            final importantes = tarefasProvider.tarefas.where((t) => t.importante && !t.realizada).toList();
-            final atrasadas = tarefasProvider.tarefas.where((t) => _isAtrasada(t)).toList();
-            final realizadas = tarefasProvider.tarefas.where((t) => t.realizada).toList();
+            final tarefas = tarefasProvider.tarefas.toList();
+
+            tarefas.sort((a, b) {
+              int comparacaoData = a.dataPrevista.compareTo(b.dataPrevista);
+              if (comparacaoData != 0) {
+                return comparacaoData;
+              }
+              return a.titulo.toLowerCase().compareTo(b.titulo.toLowerCase());
+            });
 
             return TabBarView(
               children: [
-                _buildLista(todas),
-                _buildLista(importantes),
-                _buildLista(atrasadas),
-                _buildLista(realizadas),
+                _buildLista(tarefas),
+                _buildLista(tarefas.where((t) => t.realizada).toList()),
+                _buildLista(tarefas.where((t) => !t.realizada).toList()),
+                _buildLista(tarefas.where((t) => !_isAtrasada(t)).toList()),
+                _buildLista(tarefas.where((t) => t.importante).toList()),
+                _buildLista(tarefas.where((t) => !t.importante).toList()),
+                _buildLista(tarefas.where((t) => _isAtrasada(t)).toList()),
               ],
             );
           },
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const TelaCadastro(),
-              ),
-            );
+            Navigator.of(context).pushNamed('/cadastro');
           },
           child: const Icon(Icons.add),
         ),

@@ -24,6 +24,7 @@ class _TelaBoasVindasState extends State<TelaBoasVindas> {
       body: Consumer<TarefasProvider>(
         builder: (ctx, tarefasProvider, child) {
           Tarefa? tarefaProxima;
+          int outrasTarefasMesmoDia = 0;
           bool isAtrasada = false;
           
           if (tarefasProvider.tarefas.isNotEmpty) {
@@ -32,87 +33,120 @@ class _TelaBoasVindasState extends State<TelaBoasVindas> {
               pendentes.sort((a, b) => a.dataPrevista.compareTo(b.dataPrevista));
               tarefaProxima = pendentes.first;
               
+              final dataBase = DateTime(
+                tarefaProxima.dataPrevista.year, 
+                tarefaProxima.dataPrevista.month, 
+                tarefaProxima.dataPrevista.day
+              );
+
+              outrasTarefasMesmoDia = pendentes.where((t) {
+                final d = t.dataPrevista;
+                return d.year == dataBase.year && d.month == dataBase.month && d.day == dataBase.day;
+              }).length - 1;
+
               final dataAtual = DateTime.now();
               final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
-              final dataTarefa = DateTime(tarefaProxima.dataPrevista.year, tarefaProxima.dataPrevista.month, tarefaProxima.dataPrevista.day);
-              isAtrasada = dataTarefa.isBefore(hoje);
+              isAtrasada = dataBase.isBefore(hoje);
             }
           }
 
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    isAtrasada ? Icons.warning_amber_rounded : Icons.task_alt, 
-                    size: 100, 
-                    color: isAtrasada ? Colors.red.shade400 : Colors.deepPurple.shade300
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Bem-vindo(a)!',
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 40),
-                  if (tarefaProxima != null) ...[
-                    Text(
-                      isAtrasada ? '⚠️ Atenção! Sua tarefa mais urgente está ATRASADA:' : 'Sua tarefa mais próxima de vencer é:',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16, 
-                        color: isAtrasada ? Colors.red : Colors.grey,
-                        fontWeight: isAtrasada ? FontWeight.bold : FontWeight.normal,
-                      ),
+          return SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isAtrasada ? Icons.warning_amber_rounded : Icons.task_alt, 
+                      size: 100, 
+                      color: isAtrasada ? Colors.red.shade400 : Colors.deepPurple.shade300
                     ),
-                    const SizedBox(height: 10),
-                    Card(
-                      elevation: 4,
-                      color: isAtrasada ? Colors.red.shade50 : Colors.deepPurple.shade50,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              tarefaProxima.titulo,
-                              style: TextStyle(
-                                fontSize: 20, 
-                                fontWeight: FontWeight.bold,
-                                color: isAtrasada ? Colors.red.shade900 : Colors.black,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Data: ${tarefaProxima.dataPrevista.day}/${tarefaProxima.dataPrevista.month}/${tarefaProxima.dataPrevista.year}',
-                              style: TextStyle(
-                                color: isAtrasada ? Colors.red.shade700 : Colors.deepPurple.shade700,
-                                fontWeight: isAtrasada ? FontWeight.bold : FontWeight.normal,
-                              ),
-                            ),
-                          ],
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Bem-vindo(a)!',
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 40),
+                    if (tarefaProxima != null) ...[
+                      Text(
+                        isAtrasada ? '⚠️ Atenção! Sua tarefa mais urgente está ATRASADA:' : 'Sua tarefa mais próxima de vencer é:',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16, 
+                          color: isAtrasada ? Colors.red : Colors.grey,
+                          fontWeight: isAtrasada ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
-                    ),
-                  ] else ...[
-                    const Text(
-                      'Você não tem tarefas pendentes.\nQue tal criar uma?',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
+                      const SizedBox(height: 10),
+                      Card(
+                        elevation: 4,
+                        color: isAtrasada ? Colors.red.shade50 : Colors.deepPurple.shade50,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              '/detalhes',
+                              arguments: tarefaProxima,
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  tarefaProxima.titulo,
+                                  style: TextStyle(
+                                    fontSize: 20, 
+                                    fontWeight: FontWeight.bold,
+                                    color: isAtrasada ? Colors.red.shade900 : Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Data: ${tarefaProxima.dataPrevista.day}/${tarefaProxima.dataPrevista.month}/${tarefaProxima.dataPrevista.year}',
+                                  style: TextStyle(
+                                    color: isAtrasada ? Colors.red.shade700 : Colors.deepPurple.shade700,
+                                    fontWeight: isAtrasada ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (outrasTarefasMesmoDia > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            '+ $outrasTarefasMesmoDia tarefas para essa data',
+                            style: const TextStyle(
+                              fontSize: 14, 
+                              color: Colors.blueGrey, 
+                              fontStyle: FontStyle.italic
+                            ),
+                          ),
+                        ),
+                    ] else ...[
+                      const Text(
+                        'Você não tem tarefas pendentes.\nQue tal criar uma?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ],
+                    const SizedBox(height: 50),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed('/home');
+                      },
+                      child: const Text('Ir para Minhas Tarefas', style: TextStyle(fontSize: 16)),
+                    )
                   ],
-                  const SizedBox(height: 50),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    ),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('/home');
-                    },
-                    child: const Text('Ir para Minhas Tarefas', style: TextStyle(fontSize: 16)),
-                  )
-                ],
+                ),
               ),
             ),
           );
