@@ -19,7 +19,7 @@ class _TelaInicialState extends State<TelaInicial> {
   }
 
   bool _isAtrasada(Tarefa tarefa) {
-    // Compara a data da tarefa com o dia de hoje para verificar se está atrasada
+    
     final dataAtual = DateTime.now();
     final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
     final dataTarefa = DateTime(tarefa.dataPrevista.year, tarefa.dataPrevista.month, tarefa.dataPrevista.day);

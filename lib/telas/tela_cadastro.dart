@@ -38,7 +38,7 @@ class _TelaCadastroState extends State<TelaCadastro> {
   }
 
   void _mostrarInterpretadorDeData() {
-    // Obtém a data atual para servir de base na validação
+    
     final dataAtual = DateTime.now();
     final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
     final dataInicial = DateTime(_dataPrevista.year, _dataPrevista.month, _dataPrevista.day);
@@ -46,8 +46,13 @@ class _TelaCadastroState extends State<TelaCadastro> {
     showDatePicker(
       context: context,
       initialDate: _dataPrevista,
-      // Bloqueia a escolha de datas passadas no calendário
+      
+      // BLOQUEIA DATAS PASSADAS
       firstDate: dataInicial.isBefore(hoje) ? _dataPrevista : hoje,
+      
+      // ATIVA DATAS PASSADAS
+      //firstDate: DateTime(2000),
+      
       lastDate: DateTime(2030),
     ).then((dataEscolhida) {
       if (dataEscolhida == null) return;

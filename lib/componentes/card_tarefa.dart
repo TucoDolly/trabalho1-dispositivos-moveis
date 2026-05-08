@@ -10,7 +10,7 @@ class CardTarefa extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verifica se a tarefa é anterior a hoje para acionar alertas visuais vermelhos
+    
     final dataAtual = DateTime.now();
     final hoje = DateTime(dataAtual.year, dataAtual.month, dataAtual.day);
     final dataTarefa = DateTime(tarefa.dataPrevista.year, tarefa.dataPrevista.month, tarefa.dataPrevista.day);
